@@ -65,9 +65,9 @@ function ResponsiveAppBar() {
       backgroundClip: 'padding-box, border-box',
       borderImage: 'linear-gradient(to right, #4285F4, #DB4437, #F4B400, #0F9D58) 1'
     }}>
-      <Container maxWidth="xl">
+      <Container maxWidth={false}>
         <Toolbar disableGutters>
-          <img src="/src/assets/vxilogo.png" alt="VXI Logo" style={{ height: '40px', marginRight: '10px' }} />
+          <img src="/src/assets/Vxi-logo.png" alt="VXI Logo" style={{ height: '40px', marginRight: '10px' }} />
           <Typography
             variant="h6"
             noWrap
