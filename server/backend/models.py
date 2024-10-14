@@ -8,7 +8,6 @@ class Registered_Users(models.Model):
     FullName = models.CharField(max_length=100, null=False)
     LocationDesc = models.CharField(max_length=100, null=False)
     Team = models.CharField(max_length=100, null=False)
-    Test = models.CharField(max_length=100, default="DefaultTestValue", null=False)
     DateRegistered = models.DateTimeField(null=False)
 
     def __str__(self):
