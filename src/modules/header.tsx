@@ -15,6 +15,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import AdbIcon from '@mui/icons-material/Adb';
+import { registerUser } from '../api';  // Import the registerUser function from your api
+
 
 const pages = ['Register'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -51,10 +53,14 @@ function ResponsiveAppBar() {
     setHrid(''); // Clear the input field
   };
 
-  const handleRegister = () => {
-    // Handle registration logic here
-    console.log("Registered with HRID:", hrid);
-    handleCloseModal(); // Close modal after registration
+  const handleRegister = async () => {
+    try {
+      const response = await registerUser(hrid);  // Send HRID to Django backend using Axios
+      console.log('User registered successfully:', response);
+      handleCloseModal();  // Close modal after registration
+    } catch (error) {
+      console.error('Error registering user:', error);
+    }
   };
 
   return (
