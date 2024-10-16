@@ -16,7 +16,10 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import AdbIcon from '@mui/icons-material/Adb';
 import { registerUser } from '../api';  // Import the registerUser function from your api
+import QRCode from 'react-qr-code';
 
+
+// const QRCode = require('qrcode.react').default;
 
 const pages = ['Register'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -26,6 +29,8 @@ function ResponsiveAppBar() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const [openModal, setOpenModal] = React.useState(false);
   const [hrid, setHrid] = React.useState('');
+  const [openQRModal, setOpenQRModal] = React.useState(false);  // Manage QR code modal state
+
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -50,17 +55,22 @@ function ResponsiveAppBar() {
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    setHrid(''); // Clear the input field
+    // setHrid(''); // Clear the input field
   };
 
   const handleRegister = async () => {
     try {
       const response = await registerUser(hrid);  // Send HRID to Django backend using Axios
       console.log('User registered successfully:', response);
-      handleCloseModal();  // Close modal after registration
+      handleCloseModal();  // Close registration modal
+      setOpenQRModal(true);  // Open QR code modal
     } catch (error) {
       console.error('Error registering user:', error);
     }
+  };
+
+  const handleCloseQRModal = () => {
+    setOpenQRModal(false);
   };
 
   return (
@@ -205,6 +215,17 @@ function ResponsiveAppBar() {
           <Button onClick={handleRegister} color="primary">Register</Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={openQRModal} onClose={handleCloseQRModal}>
+        <DialogTitle>QR Code</DialogTitle>
+        <DialogContent>
+          {hrid ? <QRCode value={hrid} /> : <Typography>No HRID available</Typography>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseQRModal}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
     </AppBar>
   );
 }
