@@ -17,35 +17,61 @@ export const getRegisteredUsers = async () => {
 };
 
 // Function to register a user (sending HRID)
+
+// Define the structure of the UserInfo type
+
+interface UserInfo {
+  FirstName: string;
+  LastName: string;
+  LocationDesc: string;
+  Team: string;
+}
+
 export const registerUser = async (hrid: string) => {
-    try {
-      console.log("Searching HRID on external API: ", hrid);
-  
-    //   const searchResponse = await axios.get(`https://api.vxiusa.com/api/GlobalHR/Employees/FindEEByWinIDDomain/${hrid}/VXIPHP`);
+  try {
+    console.log("Searching HRID on external API: ", hrid);
+
+    // Check if the HRID already exists in the local system
+    const existingUserResponse = await axios.get('http://127.0.0.1:8000/api/registered-users-list/');
+    console.log("list: ", existingUserResponse);
+
+    // Filter the response to check if the HRID already exists
+    const userExists = existingUserResponse.data.some((user: { Hrid: string }) => user.Hrid === hrid);
+
+    if (userExists) {
+      console.log(`HRID ${hrid} already exists.`);
+      return { data: null, message: `HRID ${hrid} already exists`, success: false };
+    } else {
+      // If HRID is not found, proceed with external API call
       const searchResponse = await axios.get(`https://vxicareers.com/srv2-api/api/v1/login/GetEmpDetailsOnGlobalAPI?nt=${hrid}&domain=VXIPHP`);
-    //   console.log("Search Response.data:", searchResponse.data.UserInfo);
-    //   console.log("Search Response:", searchResponse);
+
       if (searchResponse.data.UserInfo) {
-        // Extract necessary user data from the search response
-        const user = searchResponse.data.UserInfo;  // Adjust this based on the actual response structure
-  
+        const user: UserInfo = searchResponse.data.UserInfo;
+
+        // Register the user
         const registerResponse = await axios.post('http://127.0.0.1:8000/api/registered-users-list/', {
           Hrid: hrid,
-          FullName: user.FirstName +" "+user.LastName || "test",
-          LocationDesc: user.LocationDesc || "locationDesc", 
-          Team: user.Team || "team",  
-          DateRegistered: new Date().toISOString() 
+          FullName: user.FirstName + " " + user.LastName || "test",
+          LocationDesc: user.LocationDesc || "locationDesc",
+          Team: user.Team || "team",
+          DateRegistered: new Date().toISOString()
         });
-  
+
         console.log("User registered successfully:", registerResponse.data);
-        return registerResponse.data;
+        // Return both registerResponse.data and true
+        return { data: registerResponse.data, success: true, message : "User registered successfully" };
       } else {
         console.error("HRID not found in external API.");
         throw new Error('HRID not found');
       }
-  
-    } catch (error) {
-      console.error('Error registering user:', error);
-      throw error;
     }
-  };
+
+  } catch (error) {
+    console.error('Error registering user:', error);
+    throw error;
+  }
+};
+
+
+
+

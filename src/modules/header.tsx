@@ -15,6 +15,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import AdbIcon from '@mui/icons-material/Adb';
+import Alert from '@mui/material/Alert';
 import { registerUser } from '../api';  // Import the registerUser function from your api
 import QRCode from 'react-qr-code';
 
@@ -25,6 +26,7 @@ const pages = ['Register'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
+  const [alertMessage, setAlertMessage] = React.useState<string | null>(null);  // For controlling the alert message
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const [openModal, setOpenModal] = React.useState(false);
@@ -61,9 +63,19 @@ function ResponsiveAppBar() {
   const handleRegister = async () => {
     try {
       const response = await registerUser(hrid);  // Send HRID to Django backend using Axios
-      console.log('User registered successfully:', response);
-      handleCloseModal();  // Close registration modal
-      setOpenQRModal(true);  // Open QR code modal
+      console.log('TSX:', response);
+      console.log('result:', response.success);
+      if (response.success){
+        handleCloseModal();  // Close registration modal
+        setOpenQRModal(true);  // Open QR code modal
+      }else{
+        setAlertMessage(response.message);  // Set alert message if already registered
+      
+        // Clear alert message after 2 seconds
+        setTimeout(() => {
+          setAlertMessage(null);
+        }, 2000);      
+      }
     } catch (error) {
       console.error('Error registering user:', error);
     }
@@ -194,9 +206,9 @@ function ResponsiveAppBar() {
           </Box>
         </Toolbar>
       </Container>
-
+      
       {/* Modal for Registration */}
-      <Dialog open={openModal} onClose={handleCloseModal}>
+      <Dialog open={openModal} onClose={handleCloseModal} sx={{m:1}}>
         <DialogTitle>Register</DialogTitle>
         <DialogContent>
           <TextField
@@ -210,6 +222,12 @@ function ResponsiveAppBar() {
             onChange={(e) => setHrid(e.target.value)} // Set HRID value
           />
         </DialogContent>
+        {/* Conditionally render the alert if alertMessage exists */}
+      {alertMessage && (
+        <Alert severity="error" onClose={() => setAlertMessage(null)} sx={{ m: 0 }}>
+          {alertMessage}
+        </Alert>
+      )}
         <DialogActions>
           <Button onClick={handleCloseModal}>Close</Button>
           <Button onClick={handleRegister} color="primary">Register</Button>
