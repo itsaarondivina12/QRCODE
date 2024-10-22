@@ -21,4 +21,4 @@ class Attendance(models.Model):
     time_out = models.DateTimeField(null=True) 
 
     def __str__(self):
-        return f"{self.user.FullName} - Time In: {self.time_in}, Time Out: {self.time_out}"
+        return f"{self.FullName} - Time In: {self.time_in}, Time Out: {self.time_out}"

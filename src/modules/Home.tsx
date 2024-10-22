@@ -3,8 +3,10 @@ import { Box, Grid, Typography, Modal, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import { QrReader } from "react-qr-reader";
 import landingImage from "../assets/landing_image.png"; // Ensure the correct path
+import {AttendanceUser} from "../api.tsx"; // Ensure the correct path
 
 function Home() {
+//   const [scanning, setScanning] = useState(false);
   const [count, setCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
@@ -17,17 +19,37 @@ function Home() {
     setError(null);
   };
 
-  const handleResult = (result: { text: string } | null, error: Error | null) => {
+  let isProcessing = false;
+
+    const handleResult = async (result: { text: string } | null, error: Error | null) => {
+    if (isProcessing) return; // Prevent processing if already handling a scan
+
     if (result) {
-      setScanResult(result.text);
-      setCount((prevCount) => prevCount + 1);
-      setError(null);
+        isProcessing = true; // Set the flag to indicate processing
+        setScanResult(result.text);
+        console.log("RESULT : ", result.text);
+        
+        try {
+            const response = await AttendanceUser(result.text); 
+            console.log(response) // Send HRID to Django backend using Axios
+            setCount((prevCount) => prevCount + 1);
+            setError(null);
+        } catch (err) {
+            setError("Error sending data to the backend.");
+            console.error(err);  // Log the error for debugging
+        } finally {
+            // Reset processing flag after a delay
+            setTimeout(() => {
+                isProcessing = false; // Allow processing of a new scan
+            }, 3000);
+        }
     }
 
     if (error) {
-      setError("Error accessing camera or reading QR code.");
+        setError("Error accessing camera or reading QR code.");
     }
-  };
+};
+
 
   return (
     <Grid container spacing={2}>
@@ -82,7 +104,7 @@ function Home() {
             QR Code Scanner
           </Typography>
 
-          <QrReader delay={300} onResult={handleResult} style={{ width: "100%", marginTop: "20px" }} />
+          <QrReader delay={3000} onResult={handleResult} style={{ width: "100%", marginTop: "20px" }} />
 
           {error && (
             <Typography variant="body2" color="error" sx={{ mt: 2 }}>

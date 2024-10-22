@@ -27,6 +27,10 @@ interface UserInfo {
   Team: string;
 }
 
+
+
+
+
 export const registerUser = async (hrid: string) => {
   try {
     console.log("Searching HRID on external API: ", hrid);
@@ -71,6 +75,88 @@ export const registerUser = async (hrid: string) => {
     throw error;
   }
 };
+
+export const AttendanceUser = async (hrid: string) => {
+  try {
+    // Fetch the registered users
+    const existingUserResponse = await axios.get('http://127.0.0.1:8000/api/registered-users-list/');
+    
+    // Check if the HRID exists
+    const foundUser = existingUserResponse.data.find((user: { Hrid: string }) => user.Hrid === hrid);
+    
+    if (!foundUser) {
+      console.log(`HRID ${hrid} does not exist.`);
+      return; // Exit early if user is not found
+    }
+
+    // Fetch the attendance list
+    const existingAttendanceResponse = await axios.get('http://127.0.0.1:8000/api/attendance-list/');
+    
+    // Filter attendance entries for the given hrid
+    const filteredAttendance = existingAttendanceResponse.data.filter((attendance: { Hrid: string; }) => attendance.Hrid === hrid);
+    console.log("Filtered: ",filteredAttendance)
+
+    // Get the latest attendance entry if it exists
+    const lastAttendance = filteredAttendance[filteredAttendance.length - 1];
+    console.log("Last attendance: ",lastAttendance)
+
+    const currentTime = new Date().toISOString(); // Get the current time in ISO format
+
+    if (lastAttendance) {
+      // Update the last attendance entry
+      if (!lastAttendance.time_out) {
+        
+        const updateResponse = await axios.put(`http://127.0.0.1:8000/api/attendance-list/${lastAttendance.id}/`, {
+          Hrid: lastAttendance.Hrid,
+          FullName: lastAttendance.FullName,
+          LocationDesc: "VXI CLARK",
+          time_out: currentTime,
+          time_in: lastAttendance.time_in
+        });
+              console.log("Attendance updated successfully:", updateResponse.data);
+      } else {
+
+        const attendanceData = {
+          Hrid: hrid,
+          FullName: foundUser.FullName || "test",
+          LocationDesc: "VXI CLARK",
+          Team: foundUser.Team || "team",
+          time_in: currentTime, 
+          time_out: null, // Set time_out to current time if the last entry has time_out
+        };
+        console.log("Data before saving: ", attendanceData)
+        const registerResponse = await axios.post('http://127.0.0.1:8000/api/attendance-list/', attendanceData);
+        console.log("User registered successfully:", registerResponse.data);
+      }
+    } else {
+      const attendanceData = {
+          Hrid: hrid,
+          FullName: foundUser.FullName || "test",
+          LocationDesc: "VXI CLARK",
+          Team: foundUser.Team || "team",
+          time_in: currentTime, 
+          time_out: null, // Set time_out to current time if the last entry has time_out
+        };
+      const registerResponse = await axios.post('http://127.0.0.1:8000/api/attendance-list/', attendanceData);
+      console.log("User registered successfully:", registerResponse.data);
+    }
+  } catch (error) {
+    console.error('Error Transaction:', error);
+    throw error;
+  }
+};
+
+
+
+// interface AttendanceEntry {
+//   id: number; // Adjust this type based on your actual data structure
+//   Hrid: string; // Make sure this matches your data
+//   FullName?: string; // Optional, if not always present
+//   LocationDesc?: string; // Optional, if not always present
+//   Time_in?: string; // Adjust this type based on your actual data structure
+//   Time_out?: string; // Adjust this type based on your actual data structure
+// }
+
 
 
 
