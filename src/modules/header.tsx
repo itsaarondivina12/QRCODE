@@ -83,6 +83,7 @@ function ResponsiveAppBar() {
 
   const handleCloseQRModal = () => {
     setOpenQRModal(false);
+    window.location.reload(); 
   };
 
   return (
@@ -100,7 +101,7 @@ function ResponsiveAppBar() {
             variant="h6"
             noWrap
             component="a"
-            href="#"
+            href="/"
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
