@@ -16,6 +16,16 @@ export const getRegisteredUsers = async () => {
     }
 };
 
+export const getAttendance = async () => {
+  try {
+      const response = await api.get('attendance-list/');
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching Attendance:', error);
+      throw error; 
+  }
+};
+
 // Function to register a user (sending HRID)
 
 // Define the structure of the UserInfo type
