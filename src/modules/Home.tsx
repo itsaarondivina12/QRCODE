@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Box, Grid, Typography, Modal, Button } from "@mui/material";
-// import { Link } from "react-router-dom";
 import { QrReader } from "react-qr-reader";
 import landingImage from "../assets/landing_image.png"; // Ensure the correct path
 import {AttendanceUser} from "../api.tsx"; // Ensure the correct path
