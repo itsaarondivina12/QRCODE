@@ -31,7 +31,7 @@ function Home() {
         
         try {
             const response = await AttendanceUser(result.text); 
-            console.log(response) // Send HRID to Django backend using Axios
+            console.log("response: ", response) // Send HRID to Django backend using Axios
             setCount((prevCount) => prevCount + 1);
             setError(null);
         } catch (err) {
@@ -72,14 +72,17 @@ function Home() {
         </Typography>
 
         <Box sx={{ display: "flex", justifyContent: "center", width: "100%", marginTop: "20px" }}>
-          <button className="scan-button" onClick={handleOpen}>
+          {/* <button className="scan-button" onClick={handleOpen}>
             Scan QR
-          </button>
-          <Link to="/registered-users">
-            <Button variant="contained" sx={{ marginLeft: 2 }}>
+          </button> */}
+          <Button variant="contained" sx={{ marginLeft: 2,backgroundColor: 'orange', color: 'black'}} onClick={handleOpen}>
+              Scan QR
+            </Button>
+          {/* <Link to="/registered-users">
+            <Button variant="contained" sx={{ marginLeft: 2 , backgroundColor: 'gray', color : 'black'}}>
               User List
             </Button>
-          </Link>
+          </Link> */}
         </Box>
       </Grid>
 

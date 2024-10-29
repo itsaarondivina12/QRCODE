@@ -137,6 +137,7 @@ export const AttendanceUser = async (hrid: string) => {
         console.log("Data before saving: ", attendanceData)
         const registerResponse = await axios.post('http://127.0.0.1:8000/api/attendance-list/', attendanceData);
         console.log("User registered successfully:", registerResponse.data);
+        return "User registered successfully."; // Return success message for registration
       }
     } else {
       const attendanceData = {
@@ -156,6 +157,18 @@ export const AttendanceUser = async (hrid: string) => {
   }
 };
 
+export const deleteUser = async (id: number) => {
+  try {
+    // Sending a DELETE request to the API endpoint with the user HRID
+    console.log('API : DELETE',id)
+    const response = await api.delete(`registered-users-list/${id}/`);
+    console.log('User deleted successfully:', response.data);
+    return { success: true, message: "User deleted successfully" };
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    throw new Error('Failed to delete user');
+  }
+};
 
 
 // interface AttendanceEntry {

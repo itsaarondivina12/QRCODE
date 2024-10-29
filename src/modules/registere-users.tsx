@@ -10,11 +10,17 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material';
-import { getRegisteredUsers } from '../api'; // Adjust the path to match the directory structure
-import RegisteredUserDetails from './RegisteredUser'; // Import your details component
+import { getRegisteredUsers, deleteUser } from '../api'; // Adjust the path to match the directory structure
 
 interface User {
+  id: number;
   Hrid: string;
   FullName: string;
   LocationDesc: string;
@@ -26,6 +32,7 @@ const RegisteredUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -42,6 +49,32 @@ const RegisteredUsers: React.FC = () => {
 
     fetchUsers();
   }, []);
+
+  const handleDeleteClick = (user: User) => {
+    console.log('selectedUser', user);
+    setSelectedUser(user);
+    setOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (selectedUser) {
+      try {
+        const result = await deleteUser(selectedUser.id);
+        if (result.success) {
+          setUsers((prevUsers) => prevUsers.filter((user) => user.id !== selectedUser.id));
+        }
+      } catch (error) {
+        setError('Failed to delete user');
+      } finally {
+        handleClose();
+      }
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedUser(null);
+  };
 
   if (loading) {
     return (
@@ -69,30 +102,35 @@ const RegisteredUsers: React.FC = () => {
               <TableCell>Location</TableCell>
               <TableCell>Team</TableCell>
               <TableCell>Date Registered</TableCell>
+              <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users.map((user) => (
-              <TableRow
-                key={user.Hrid}
-                hover
-                onClick={() => setSelectedUser(user)}
-                style={{ cursor: 'pointer' }}
-              >
+              <TableRow key={user.id}>
                 <TableCell>{user.Hrid}</TableCell>
                 <TableCell>{user.FullName}</TableCell>
                 <TableCell>{user.LocationDesc}</TableCell>
                 <TableCell>{user.Team}</TableCell>
                 <TableCell>
-                {new Date(user.DateRegistered).toLocaleString('en-PH', {
+                  {new Date(user.DateRegistered).toLocaleString('en-PH', {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit',
-                    hour12: false, // 24-hour format
-                })}
+                    hour12: false,
+                  })}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleDeleteClick(user)}
+                  >
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -100,13 +138,23 @@ const RegisteredUsers: React.FC = () => {
         </Table>
       </TableContainer>
 
-      {/* Display user details if a user is selected */}
-      {selectedUser && (
-        <div style={{ marginTop: '20px' }}>
-          <Typography variant="h6">User Details</Typography>
-          <RegisteredUserDetails user={selectedUser} />
-        </div>
-      )}
+      {/* Confirmation Dialog */}
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to remove {selectedUser?.FullName} from the registered users?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} color="secondary">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
