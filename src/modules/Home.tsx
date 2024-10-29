@@ -5,7 +5,6 @@ import landingImage from "../assets/landing_image.png"; // Ensure the correct pa
 import {AttendanceUser} from "../api.tsx"; // Ensure the correct path
 
 function Home() {
-//   const [scanning, setScanning] = useState(false);
   const [count, setCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
